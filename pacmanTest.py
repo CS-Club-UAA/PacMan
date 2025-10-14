@@ -23,20 +23,20 @@ key_map = {
 
 GRID_WIDTH = len(grid[0])
 GRID_HEIGHT = len(grid)
-IMAGE_SCALE = 80
-WIDTH = IMAGE_SCALE * GRID_WIDTH
-HEIGHT = IMAGE_SCALE * GRID_HEIGHT
+width = 1280
+height = 720
+image_scale = min(width//GRID_WIDTH, height//GRID_HEIGHT)
 
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = pygame.display.set_mode((width, height), pygame.RESIZABLE)
 pygame.display.set_caption("Pacman Test")
 clock = pygame.time.Clock()
 
 tiles = {}
 try:
     for i in range(16):
-        tiles[i] = pygame.transform.scale(pygame.image.load(f"./assets/tile_{i:02}.png"), (IMAGE_SCALE, IMAGE_SCALE))
-    tiles["blue"] = pygame.transform.scale(pygame.image.load(f"./assets/blue.png"), (IMAGE_SCALE, IMAGE_SCALE))
-    tiles["pacman"] = pygame.transform.scale(pygame.image.load(f"./assets/pacman.png"), (IMAGE_SCALE, IMAGE_SCALE))
+        tiles[i] = pygame.image.load(f"./assets/tile_{i:02}.png")
+    tiles["blue"] = pygame.image.load(f"./assets/blue.png")
+    tiles["pacman"] = pygame.image.load(f"./assets/pacman.png")
 except Exception as e:
     print(f"Error loading image: {e}")
     pygame.quit()
@@ -79,15 +79,25 @@ direction = -45
 running = True
 while running:
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+        match event.type:
+            case pygame.QUIT:
+                running = False
+            case pygame.VIDEORESIZE:
+                print(event.size)
+                width = event.size[0]
+                height = event.size[1]
+                image_scale = min(width//GRID_WIDTH, height//GRID_HEIGHT)
+
+        # if event.type == pygame.QUIT:
+        #     running = False
+        # elif event.type
             
     screen.fill((255, 255, 255)) # White background
 
     # Display maze
     for y, row in enumerate(image_grid):
         for x, image in enumerate(row):
-            screen.blit(image, (IMAGE_SCALE * x, IMAGE_SCALE * y))
+            screen.blit(pygame.transform.scale(image, (image_scale, image_scale)), (image_scale * x, image_scale * y))
     
     new_x = x_pos
     new_y = y_pos
@@ -106,28 +116,28 @@ while running:
         new_dir = -45
 
     if new_dir == 45:
-        new_y -= 1
-    if new_dir == 225:
-        new_y += 1
-    if new_dir == -225:
-        new_x -= 1
-    if new_dir == -45:
-        new_x += 1
+        new_y -= 0.1
+    elif new_dir == 225:
+        new_y += 0.1
+    elif new_dir == -225:
+        new_x -= 0.1
+    elif new_dir == -45:
+        new_x += 0.1
 
     # new_x = x_pos + keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]
     # new_y = y_pos + keys[pygame.K_DOWN] - keys[pygame.K_UP] # Todo, this will allow going diagonally. Probably don't want
     direction = new_dir
-    if isValidMove(new_x, new_y):
+    if isValidMove(round(new_x), round(new_y)):
         # print("Current:", x_pos, y_pos, "New:", new_x, new_y, "up/down:", keys[pygame.K_UP], keys[pygame.K_DOWN])
         x_pos = new_x
         y_pos = new_y
 
-    pacman = pygame.transform.rotate(tiles["pacman"], direction)
+    pacman = pygame.transform.rotate( pygame.transform.scale(tiles["pacman"], (image_scale, image_scale)), direction)
     rect = pacman.get_rect()
-    rect.center = (IMAGE_SCALE * (x_pos + 0.5), IMAGE_SCALE * (y_pos + 0.5))# tiles["pacman"].get_rect().center
+    rect.center = (image_scale * (x_pos + 0.5), image_scale * (y_pos + 0.5))# tiles["pacman"].get_rect().center
     screen.blit(pacman, rect)
 
     pygame.display.update() # flip updates entire screen update has arguments to only update part of it
-    clock.tick(7)
+    clock.tick(60)
 
 pygame.quit()
