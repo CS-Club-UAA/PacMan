@@ -7,8 +7,8 @@ import os
 
 class sceneHandler:
     def __init__(self, screen, settings):
-    	self.screen = screen
-    	self.settings = settings
+        self.screen = screen
+        self.settings = settings
         self.next_scene = self
         self.current_scene = None
 
@@ -32,7 +32,8 @@ class sceneHandler:
         self.current_scene = None
         print("Game Ended")
         pygame.quit()
-        
+
+
 class SceneManager:
     scenes = {}  # holds all scene classes by name
 
