@@ -1,4 +1,3 @@
-# This file manages different creates a sceneHandler class to manage different scenes in the game.
 import pygame
 import importlib
 import pkgutil
@@ -34,7 +33,7 @@ class sceneHandler:
         pygame.quit()
 
 
-class SceneManager:
+class sceneManager:
     scenes = {}  # holds all scene classes by name
 
     @classmethod
@@ -48,6 +47,8 @@ class SceneManager:
     @classmethod
     def load_all_scenes(cls, package="scenes"):
         """Automatically import all files in the scenes/ folder."""
-        package_path = os.path.join(os.path.dirname(__file__), package)
+        base_path = os.path.dirname(os.path.dirname(__file__))  # project root
+        package_path = os.path.join(base_path, package)
+
         for _, module_name, _ in pkgutil.iter_modules([package_path]):
             importlib.import_module(f"{package}.{module_name}")

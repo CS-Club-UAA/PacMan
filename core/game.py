@@ -1,4 +1,4 @@
-from core.sceneManager import SceneManager
+from core.sceneManager import sceneManager
 from pathlib import Path
 import pygame
 import json
@@ -23,8 +23,8 @@ def gameLoop(settings):
 
     running = True
 
-    SceneManager.load_all_scenes()
-    current_scene = SceneManager.get_scene("title")(screen, settings)
+    sceneManager.load_all_scenes()
+    current_scene = sceneManager.get_scene("title")(screen, settings)
 
     while running:
         events = pygame.event.get()
@@ -41,7 +41,7 @@ def gameLoop(settings):
             # Scene transitions
             if current_scene.next_scene != current_scene:
                 next_scene_name = current_scene.next_scene
-                next_scene_class = SceneManager.get_scene(next_scene_name)
+                next_scene_class = sceneManager.get_scene(next_scene_name)
                 if next_scene_class:
                     current_scene = next_scene_class(screen, settings)
                 else:
