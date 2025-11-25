@@ -6,27 +6,34 @@ class StartScreen(sceneHandler):
     def __init__(self, screen, settings):
         super().__init__(screen, settings)
 
-    def processInput(self, events, pressed_keys):
-        for event in events:
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+        width, height = self.settings.video.resolution
+        font = pygame.font.SysFont("Arial", 80)
+
+        # Start button
+        text = font.render("Start", True, (255, 255, 255))
+        self.start_text = text
+        self.start_rect = text.get_rect(center=(width // 2, height // 2))
+
+        # Settings button
+        self.settings_rect = pygame.Rect(width - 140, 20, 110, 40)
+
+    def handleEvent(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN:
                 self.changeScene("level1")
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mx, my = pygame.mouse.get_pos()
+            if self.start_rect.collidepoint((mx, my)):
+                self.changeScene("level1")
 
-                if self.text_rect.collidepoint(mouse_pos):
-                    self.changeScene("level1")
-
-                if self.settings_rect.collidepoint(mouse_pos):
-                    print("Settings clicked!")
-
-    def gameUpdate(self):
+    def gameUpdate(self, dt, pressed_keys):
         pass
 
     def sceneRender(self, screen):
         pygame.display.set_caption("PacMan")
 
-        width, height = self.settings["width"], self.settings["height"]
+        width, height = self.settings.video.resolution
         screen.fill((0, 0, 0))
 
         font = pygame.font.SysFont("Arial", 80)

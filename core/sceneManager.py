@@ -8,16 +8,16 @@ class sceneHandler:
     def __init__(self, screen, settings):
         self.screen = screen
         self.settings = settings
-        self.next_scene = self
+        self.next_scene = None
         self.current_scene = None
 
     def getCurrentScene(self):
         return self.current_scene
 
-    def processInput(self, events, pressed_keys):
+    def handleEvent(self, event):
         print("uh-oh, you didn't override this in the child class")
 
-    def gameUpdate(self):
+    def gameUpdate(self, dt, pressed_keys=None):
         print("uh-oh, you didn't override this in the child class")
 
     def sceneRender(self, screen):

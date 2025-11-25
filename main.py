@@ -1,20 +1,16 @@
-import json
 from pathlib import Path
+from core.settingsManager import SettingsManager
 from core.game import gameLoop
 
 BASE_DIR = Path(__file__).resolve().parent
 
 
-def load_config():
-    """Load the config JSON file."""
-    config_path = BASE_DIR / "data" / "usrSettings.json"
-    with open(config_path, "r") as f:
-        return json.load(f)
-
-
 def main():
     print("Starting Pac-Man...")
-    settings = load_config()
+
+    config_path = BASE_DIR / "data" / "usrSettings.json"
+    settings = SettingsManager(config_path)
+
     gameLoop(settings)
 
 
