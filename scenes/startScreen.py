@@ -18,9 +18,6 @@ class StartScreen(sceneHandler):
         self.settings_rect = pygame.Rect(width - 140, 20, 110, 40)
 
     def handleEvent(self, event):
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RETURN:
-                self.changeScene("level1")
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = pygame.mouse.get_pos()
