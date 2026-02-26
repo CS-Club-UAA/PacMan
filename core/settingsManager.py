@@ -51,6 +51,7 @@ class SettingsNode:
 
 
 class SettingsMenu:
+    # TODO: Correct options in settings scene
     def __init__(self, screen):  # A layer is created for settings menu
         self.screen = screen
         self.font = pygame.font.Font(None, 50)  # sets the font in menu
