@@ -7,6 +7,7 @@ class SubMenu(sceneHandler):
     def __init__(self, screen, settings):
         super().__init__(screen, settings)
         width, height = self.settings.video.resolution
+        # TODO: Add other lists to represent different menus
         self.options = [
             "Graphics",
             "Sound",

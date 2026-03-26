@@ -20,12 +20,12 @@ class StartScreen(sceneHandler):
     def handleEvent(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN:
-                self.changeScene("level1")
+                self.changeScene("RGame")
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = pygame.mouse.get_pos()
             if self.start_rect.collidepoint((mx, my)):
-                self.changeScene("level1")
+                self.changeScene("RGame")
             elif self.settings_rect.collidepoint((mx, my)):
                 self.changeScene("settings")
 
