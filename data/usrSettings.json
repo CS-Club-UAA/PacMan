@@ -1,0 +1,45 @@
+{
+    "version": 1,
+    "video": {
+        "resolution": [
+            800,
+            600
+        ],
+        "fullscreen": false,
+        "vsync": true,
+        "scale": 2
+    },
+    "audio": {
+        "master_volume": 0.8,
+        "music_volume": 0.7,
+        "sfx_volume": 1.0,
+        "mute": false
+    },
+    "controls": {
+        "keyboard": {
+            "move_up": "UP",
+            "move_down": "DOWN",
+            "move_left": "LEFT",
+            "move_right": "RIGHT",
+            "pause": "P"
+        },
+        "controller": {
+            "enabled": true,
+            "move_x_axis": 0,
+            "move_y_axis": 1,
+            "pause_button": 7
+        }
+    },
+    "gameplay": {
+        "lives": 3,
+        "ghost_speed": 1.0,
+        "pacman_speed": 1.0,
+        "frightened_duration": 6,
+        "fruit_spawn": true
+    },
+    "debug": {
+        "show_fps": false,
+        "god_mode": false,
+        "collision_boxes": false
+    }
+}
