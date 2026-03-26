@@ -1,10 +1,8 @@
-# UAA PacMan 
+# DEV SECTION OF UAA PacMan 
 
-Lorem ipsum
+This is a snapshot of of code in development.
 
-## Requirements
+This snapshot is was created on 3/26/2026
 
-These are
 
-## UI Section
 
