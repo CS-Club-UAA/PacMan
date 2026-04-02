@@ -240,7 +240,7 @@ class GameScene(sceneHandler):
 
         pacman_surf = pygame.transform.rotate(
             pygame.transform.scale(self.tiles["pacman"], (image_scale, image_scale)),
-            self.angle,
+            self.angle - 45,
         )
 
         # FIX 7: Use pacman_surf.get_rect() (not pacman.get_rect()); the rotated
