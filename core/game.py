@@ -4,7 +4,7 @@ import pygame
 from core.settingsManager import SettingsManager  # import helper
 
 
-def gameLoop(settings=None):
+def gameLoop(settings):
 
     pygame.init()
 
