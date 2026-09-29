@@ -70,3 +70,21 @@ If a branch is still open after a couple of weeks, the task is probably too big.
 | The feature is **already merged** into `main` | **On a new `fix/...` branch made from the latest `main`**, with its own PR. Don't reuse the old feature branch; it's deleted or out of date. |
 
 Example: Pac-Man can eat pellets through walls. If the `feature/pellets` PR is still open, fix it there. If it merged last week, create `fix/pellets-through-walls` from `main`.
+
+### Merging a PR: merge commit vs. squash
+
+GitHub's merge button has a **▾** dropdown with these options (the repo admin controls which ones are allowed in *Settings → General → Pull Requests*):
+
+| | **Create a merge commit** | **Squash and merge** |
+|---|---|---|
+| What lands on `main` | Every commit from the branch, plus a merge commit tying them together | One new commit containing all the PR's changes |
+| History | Shows exactly how the work was done, including "fix typo" commits | Clean: one commit per PR, easy to read and easy to revert |
+| Does git know the branch is merged? | **Yes**: the branch's commits are in `main` | **No**: the branch's original commits are *not* in `main` |
+
+**Our default: merge commit.** Use squash only when a branch has lots of messy commits, and then **delete the branch right after merging**.
+
+⚠️ **Never keep working on a branch after it was squash-merged.** Git doesn't know its commits are already in `main`, so the next PR from that branch will hit merge conflicts on every file you touched again. (This happened to us with `test-stable` and PR #7.) Start a fresh branch from the latest `main` instead:
+```sh
+git fetch origin
+git checkout -b feature/next-thing origin/main
+```
