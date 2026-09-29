@@ -34,7 +34,7 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
    - ✅ `pygame.mixer.Sound.set_volume(level)` raises `TypeError` because it's called on the class, not on a sound object.
    - `change_resolution` swaps width and height (`[1]`, `[0]`) and uses `global res/screen`.
    - `1280,780` should be `1280,720`.
-3. **The pygame library isn't consistent.** At least one dev machine has **pygame-ce 2.5.8** installed, but `requirements.txt` pins **pygame 2.6.1**. Those are two different libraries, so pick one. (The branch drift between `main` and `test-stable` has been fixed by merging `main` in.)
+3. ~~**The pygame library isn't consistent.**~~ Fixed: the project now uses **pygame-ce** (`pygame-ce>=2.5.8` in `requirements.txt`). Plain pygame 2.6.1 has no installer for Python 3.14. The branch drift between `main` and `test-stable` has also been fixed by merging `main` in.
 4. **The CI lint job can't pass.**
    - It tests Python 3.8 and 3.9, but the code uses `match` (Python 3.10+), so those runs fail with syntax errors.
    - It doesn't install pygame, so every import is flagged.
@@ -48,7 +48,8 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
 
 ### P0: Bugs / broken features
 - [x] ~~Merge `main` into `test-stable`~~ (done). Next, agree on a branch workflow, e.g. `feature/*` → `dev` → `main`, and merge `main` back into working branches regularly so they don't drift again.
-- [ ] Choose **pygame** or **pygame-ce**, then make `requirements.txt` and every member's venv match.
+- [x] ~~Choose **pygame** or **pygame-ce**~~ (done: pygame-ce).
+- [ ] Every member: recreate your venv and reinstall from `requirements.txt` (see README). Uninstall plain `pygame` first if you have it.
 - [ ] Settings menu:
   - [ ] Create `self.font` in `__init__`, not in `sceneRender`.
   - [ ] Act on the selection *inside* `handleEvent`; don't return it.
@@ -67,8 +68,8 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
 - [x] ~~Use `pygame.key.key_code(name)` for key bindings~~ (done, came in from `main`).
 - [ ] Wire up the unused `pause` key binding.
 - [ ] Fix CI:
-  - [ ] Test on Python 3.10–3.12.
-  - [ ] Run `pip install -r requirements.txt` before pylint.
+  - [ ] Test on Python 3.10 through the newest release, so breakage on new Pythons shows up early.
+  - [ ] Run `pip install -r requirements.txt` before pylint (installs pygame-ce).
   - [ ] Upgrade to `setup-python@v5`.
   - [ ] Add a `.pylintrc` so the job can actually pass.
 - [x] ~~`game.py`: remove the `settings=None` default~~ (done, came in from `main`).
