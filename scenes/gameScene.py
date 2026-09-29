@@ -167,6 +167,8 @@ class GameScene(sceneHandler):
     # ------------------------------------------------------------------
 
     def handleEvent(self, event):
+        # FIX 4: handleEvent receives a single event (from game.py's loop),
+        # not the full event list. Remove the inner "for event in events" loop.
         match event.type:
             case pygame.KEYDOWN:
                 if event.key == pygame.K_DELETE:
