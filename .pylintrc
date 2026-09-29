@@ -1,0 +1,11 @@
+[MAIN]
+# pygame is a compiled C extension. Without this, pylint can't see members
+# like pygame.KEYDOWN or pygame.init and reports false "no-member" errors.
+extension-pkg-allow-list=pygame
+
+# CI fails only on real errors (E) and fatal problems (F). Style warnings
+# (naming, docstrings, ...) are still reported but don't block a PR.
+# The score was 7.64/10 when this was added. Once the team cleans up the
+# warnings, raise fail-under (e.g. to 8) so the score can't go back down.
+fail-under=0
+fail-on=E,F

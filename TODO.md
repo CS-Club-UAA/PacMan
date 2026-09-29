@@ -18,7 +18,7 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
 ## What you're doing well as a team
 
 - The `FIX 1`–`FIX 7` comments in `gameScene.py` explain *why* each change was made. That's very useful for a learning club, so keep doing it.
-- You use PRs, a lint workflow, and (on `main`) a venv with `requirements.txt`.
+- You use PRs, a lint workflow, and a venv with `requirements.txt`.
 - You work in small steps: the maze and movement work before ghosts and pellets get added.
 
 ## What's going badly (fix these first)
@@ -35,7 +35,7 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
    - `change_resolution` swaps width and height (`[1]`, `[0]`) and uses `global res/screen`.
    - `1280,780` should be `1280,720`.
 3. ~~**The pygame library isn't consistent.**~~ Fixed: the project now uses **pygame-ce** (`pygame-ce>=2.5.8` in `requirements.txt`). Plain pygame 2.6.1 has no installer for Python 3.14. The branch drift between `main` and `test-stable` has also been fixed by merging `main` in.
-4. **The CI lint job can't pass.**
+4. ~~**The CI lint job can't pass.**~~ Fixed: see P0. What it used to do wrong:
    - It tests Python 3.8 and 3.9, but the code uses `match` (Python 3.10+), so those runs fail with syntax errors.
    - It doesn't install pygame, so every import is flagged.
    - It uses the outdated `actions/setup-python@v3`.
@@ -47,7 +47,14 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
 ## TODO
 
 ### P0: Bugs / broken features
-- [x] ~~Merge `main` into `test-stable`~~ (done). Next, agree on a branch workflow, e.g. `feature/*` → `dev` → `main`, and merge `main` back into working branches regularly so they don't drift again.
+- [x] ~~Merge `main` into `test-stable`~~ (done).
+- [x] ~~Agree on a branch workflow~~ (decided: **GitHub Flow**, see "Contributing" in the README).
+- [ ] Switch over to GitHub Flow:
+  - [ ] Open a PR from `test-stable` into `main` and merge it, so `main` has the latest work (pygame-ce, TODO, settings menu).
+  - [ ] Check the old `dev` branch for work that never reached `main`. It has 14 commits from Nov 2025 that are in neither `main` nor `test-stable`. Rescue anything still needed, then delete `dev`.
+  - [ ] Delete `test-stable` once it's merged.
+  - [ ] Turn on branch protection for `main` on GitHub: require a PR, one approving review, and passing CI.
+  - [ ] Tag the first working version: `git tag v0.1 && git push origin v0.1`.
 - [x] ~~Choose **pygame** or **pygame-ce**~~ (done: pygame-ce).
 - [ ] Every member: recreate your venv and reinstall from `requirements.txt` (see README). Uninstall plain `pygame` first if you have it.
 - [ ] Settings menu:
@@ -67,11 +74,8 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
   - [ ] Open joysticks on `JOYDEVICEADDED`.
 - [x] ~~Use `pygame.key.key_code(name)` for key bindings~~ (done, came in from `main`).
 - [ ] Wire up the unused `pause` key binding.
-- [ ] Fix CI:
-  - [ ] Test on Python 3.10 through the newest release, so breakage on new Pythons shows up early.
-  - [ ] Run `pip install -r requirements.txt` before pylint (installs pygame-ce).
-  - [ ] Upgrade to `setup-python@v5`.
-  - [ ] Add a `.pylintrc` so the job can actually pass.
+- [x] ~~Fix CI~~ (done): tests Python 3.10–3.14, installs `requirements.txt`, uses `checkout@v7` / `setup-python@v7`, and `.pylintrc` fixes the pygame false errors. Add new Python versions to the matrix as they come out.
+- [ ] Clean up pylint warnings (score 7.64/10: naming, docstrings, unused variables/imports), then raise `fail-under` in `.pylintrc` so the score can't drop.
 - [x] ~~`game.py`: remove the `settings=None` default~~ (done, came in from `main`).
 - [ ] `game.py`: remove the unused imports (`Path`, `SettingsManager`).
 
