@@ -17,3 +17,32 @@ pip install -r requirements.txt
 ```sh
 python main.py
 ```
+
+## Contributing (GitHub Flow)
+
+`main` is the only long-lived branch, and it must always run. All work happens on short-lived branches:
+
+1. **Start from the latest `main`:**
+   ```sh
+   git checkout main
+   git pull
+   git checkout -b feature/pellets   # or fix/settings-crash, etc.
+   ```
+   Use one branch per task. [TODO.md](TODO.md) items make good branches. Prefix with `feature/` for new things and `fix/` for bugs.
+2. **Commit and push your branch:**
+   ```sh
+   git add <files>
+   git commit -m "Add pellets and score"
+   git push -u origin feature/pellets
+   ```
+3. **Open a Pull Request into `main`** on GitHub. Another member reviews it, and CI must pass.
+4. **Merge it, then delete the branch.** Keep branches small and short-lived (days, not weeks) so they don't drift from `main`.
+5. **If `main` changed while you worked,** update your branch before merging:
+   ```sh
+   git fetch origin
+   git merge origin/main
+   ```
+
+Rules:
+- Never push directly to `main`; everything goes through a PR.
+- Stable versions are marked with tags (`v0.1`, `v0.2`, ...), not with separate branches. To try an old version, run `git checkout v0.1`.

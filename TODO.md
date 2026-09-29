@@ -18,7 +18,7 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
 ## What you're doing well as a team
 
 - The `FIX 1`–`FIX 7` comments in `gameScene.py` explain *why* each change was made. That's very useful for a learning club, so keep doing it.
-- You use PRs, a lint workflow, and (on `main`) a venv with `requirements.txt`.
+- You use PRs, a lint workflow, and a venv with `requirements.txt`.
 - You work in small steps: the maze and movement work before ghosts and pellets get added.
 
 ## What's going badly (fix these first)
@@ -47,7 +47,14 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
 ## TODO
 
 ### P0: Bugs / broken features
-- [x] ~~Merge `main` into `test-stable`~~ (done). Next, agree on a branch workflow, e.g. `feature/*` → `dev` → `main`, and merge `main` back into working branches regularly so they don't drift again.
+- [x] ~~Merge `main` into `test-stable`~~ (done).
+- [x] ~~Agree on a branch workflow~~ (decided: **GitHub Flow**, see "Contributing" in the README).
+- [ ] Switch over to GitHub Flow:
+  - [ ] Open a PR from `test-stable` into `main` and merge it, so `main` has the latest work (pygame-ce, TODO, settings menu).
+  - [ ] Check the old `dev` branch for work that never reached `main`. It has 14 commits from Nov 2025 that are in neither `main` nor `test-stable`. Rescue anything still needed, then delete `dev`.
+  - [ ] Delete `test-stable` once it's merged.
+  - [ ] Turn on branch protection for `main` on GitHub: require a PR, one approving review, and passing CI.
+  - [ ] Tag the first working version: `git tag v0.1 && git push origin v0.1`.
 - [x] ~~Choose **pygame** or **pygame-ce**~~ (done: pygame-ce).
 - [ ] Every member: recreate your venv and reinstall from `requirements.txt` (see README). Uninstall plain `pygame` first if you have it.
 - [ ] Settings menu:
