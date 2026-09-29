@@ -35,7 +35,7 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
    - `change_resolution` swaps width and height (`[1]`, `[0]`) and uses `global res/screen`.
    - `1280,780` should be `1280,720`.
 3. ~~**The pygame library isn't consistent.**~~ Fixed: the project now uses **pygame-ce** (`pygame-ce>=2.5.8` in `requirements.txt`). Plain pygame 2.6.1 has no installer for Python 3.14. The branch drift between `main` and `test-stable` has also been fixed by merging `main` in.
-4. **The CI lint job can't pass.**
+4. ~~**The CI lint job can't pass.**~~ Fixed: see P0. What it used to do wrong:
    - It tests Python 3.8 and 3.9, but the code uses `match` (Python 3.10+), so those runs fail with syntax errors.
    - It doesn't install pygame, so every import is flagged.
    - It uses the outdated `actions/setup-python@v3`.
@@ -74,11 +74,8 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
   - [ ] Open joysticks on `JOYDEVICEADDED`.
 - [x] ~~Use `pygame.key.key_code(name)` for key bindings~~ (done, came in from `main`).
 - [ ] Wire up the unused `pause` key binding.
-- [ ] Fix CI:
-  - [ ] Test on Python 3.10 through the newest release, so breakage on new Pythons shows up early.
-  - [ ] Run `pip install -r requirements.txt` before pylint (installs pygame-ce).
-  - [ ] Upgrade to `setup-python@v5`.
-  - [ ] Add a `.pylintrc` so the job can actually pass.
+- [x] ~~Fix CI~~ (done): tests Python 3.10–3.14, installs `requirements.txt`, uses `checkout@v7` / `setup-python@v7`, and `.pylintrc` fixes the pygame false errors. Add new Python versions to the matrix as they come out.
+- [ ] Clean up pylint warnings (score 7.64/10: naming, docstrings, unused variables/imports), then raise `fail-under` in `.pylintrc` so the score can't drop.
 - [x] ~~`game.py`: remove the `settings=None` default~~ (done, came in from `main`).
 - [ ] `game.py`: remove the unused imports (`Path`, `SettingsManager`).
 
