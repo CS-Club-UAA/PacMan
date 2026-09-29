@@ -137,20 +137,12 @@ class GameScene(sceneHandler):
 
     def _build_key_map(self, ctrl):
         """Convert string key names from JSON into pygame key constants."""
-        name_to_key = {
-            "UP": pygame.K_UP, "DOWN": pygame.K_DOWN,
-            "LEFT": pygame.K_LEFT, "RIGHT": pygame.K_RIGHT,
-            "W": pygame.K_w, "A": pygame.K_a,
-            "S": pygame.K_s, "D": pygame.K_d,
-        }
-        def resolve(name):
-            return name_to_key.get(name.upper(), pygame.K_UP)
-
+        # TODO: Convert key codes in settingsManager
         return {
-            "up":    [resolve(ctrl.move_up)],
-            "down":  [resolve(ctrl.move_down)],
-            "left":  [resolve(ctrl.move_left)],
-            "right": [resolve(ctrl.move_right)],
+            "up":    [pygame.key.key_code(ctrl.move_up)],
+            "down":  [pygame.key.key_code(ctrl.move_down)],
+            "left":  [pygame.key.key_code(ctrl.move_left)],
+            "right": [pygame.key.key_code(ctrl.move_right)],
         }
 
     # ------------------------------------------------------------------
@@ -248,7 +240,7 @@ class GameScene(sceneHandler):
 
         pacman_surf = pygame.transform.rotate(
             pygame.transform.scale(self.tiles["pacman"], (image_scale, image_scale)),
-            self.angle,
+            self.angle - 45,
         )
 
         # FIX 7: Use pacman_surf.get_rect() (not pacman.get_rect()); the rotated
