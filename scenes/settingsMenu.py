@@ -34,6 +34,7 @@ class SubMenu(sceneHandler):
             "Back",
         ]  # Number of things in each section (6,3,5,2,7)
         self.selected_option = 0
+        self.menu_section = 0
 
     def handleEvent(self, event):
         # menu navigation via keyboard (up/down then press enter to select)
@@ -65,44 +66,52 @@ class SubMenu(sceneHandler):
                     ):
                         self.selected_option = index
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:  # left mouse button
+            if event.button == 1:  # left mouse buttons
                 return self.options[self.selected_option]
+
         return None
 
     def gameUpdate(self, dt, pressed_keys):
-        pass
+        if (
+            pressed_keys[pygame.K_ESCAPE] and self.menu_section == 0
+        ):  # Pressing ESC goes back to previous menu
+            self.changeScene("title")
+        if pressed_keys[pygame.K_ESCAPE] and self.menu_section > 0:
+            self.menu_section = self.options.index(
+                self.options[self.selected_option]
+            )  # Get the selected option from events
 
-    def sceneRender(self, screen, settings_state=0):
+    def sceneRender(self, screen):
         screen.fill((0, 0, 0))
         self.font = pygame.font.Font(None, 50)  # sets the font in menu
         temperary_options = []  # Placeholder for future use
         start = 0
 
         # Graphics, Sound, Controls, Restart, Back, Exit Game
-        if settings_state == 0:
+        if self.menu_section == 0:
             for index, option in enumerate(self.options[0:6], start):
                 temperary_options.append(option)
 
         # Resolution, Fullscreen/Windowed, Back
-        elif settings_state == 1:
+        elif self.menu_section == 1:
             start = 6
             for index, option in enumerate(self.options[6:9], start):
                 temperary_options.append(option)
 
         # Master Volume, Music Volume, Sound Effects Volume, Mute/Unmute, Back
-        elif settings_state == 2:
+        elif self.menu_section == 2:
             start = 9
             for index, option in enumerate(self.options[9:14], start):
                 temperary_options.append(option)
 
         # Rebind Keys, Back
-        elif settings_state == 3:
+        elif self.menu_section == 3:
             start = 14
             for index, option in enumerate(self.options[14:15], start):
                 temperary_options.append(option)
 
         # Resolution options
-        elif settings_state == 4:
+        elif self.menu_section == 4:
             start = 16
             for index, option in enumerate(
                 self.options[16:23], start=16
