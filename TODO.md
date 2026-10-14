@@ -66,7 +66,7 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
   - [ ] Remove `pygame.display.flip()` from `sceneRender`.
   - [ ] Fix the `[14:15]` slice.
 - [ ] Replace the flat 23-item options list with a nested structure, e.g. `{"Graphics": ["Resolution", "Fullscreen", "Back"], ...}`. That removes all the magic slice numbers.
-- [ ] Delete `SettingsMenu` from `core/settingsManager.py`, or move the working pieces (volume, fullscreen) into the scene and fix them. Volume should use `pygame.mixer.music.set_volume` plus `sound.set_volume` on each `Sound` object.
+- [x] ~~Delete `SettingsMenu` from `core/settingsManager.py`~~ (done). When volume is added to the settings scene, use `pygame.mixer.music.set_volume` plus `sound.set_volume` on each `Sound` object.
 - [ ] Stop the wall-sliding render: only interpolate when the next tile is walkable. Better: move by a fraction of a tile each frame (see P1).
 - [ ] Joystick:
   - [ ] Add a deadzone, e.g. ignore `abs(value) < 0.5`.
@@ -77,7 +77,7 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
 - [x] ~~Fix CI~~ (done): tests Python 3.10–3.14, installs `requirements.txt`, uses `checkout@v7` / `setup-python@v7`, and `.pylintrc` fixes the pygame false errors. Add new Python versions to the matrix as they come out.
 - [ ] Clean up pylint warnings (score 7.64/10: naming, docstrings, unused variables/imports), then raise `fail-under` in `.pylintrc` so the score can't drop.
 - [x] ~~`game.py`: remove the `settings=None` default~~ (done, came in from `main`).
-- [ ] `game.py`: remove the unused imports (`Path`, `SettingsManager`).
+- [x] ~~`game.py`: remove the unused imports (`Path`, `SettingsManager`)~~ (done).
 
 ### P1: Core gameplay (the actual Pac-Man)
 - [ ] **Store more than wall / empty in the maze.** `0` currently means both "walkable path" and "empty space outside the maze". Use values such as `WALL, PELLET, POWER_PELLET, EMPTY, GHOST_DOOR`, or load the maze from a text file in `data/`:
@@ -106,7 +106,7 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
   - [ ] `SubMenu.selector`
   - [ ] the unused `text` variable in the mouse loop
   - [ ] the unused `width, height` in `SubMenu.__init__`
-  - [ ] duplicate assets (`assets/tile_*.png` vs `assets/4x4/`, the unused `blue.png`, `tile_16.png`)
+  - [x] ~~duplicate assets (`assets/tile_*.png`, `tile_16.png`)~~ (done; `blue.png` is still loaded by the game scene, so it stays)
 - [ ] Rename the misspelled `temperary_options` to `temporary_options`.
 - [ ] `startScreen`:
   - [ ] Create fonts and text once in `__init__`, not every frame.
@@ -118,10 +118,10 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
 - [ ] Use ESC instead of DELETE to leave the game scene.
 
 ### P3: Settings persistence
-- [ ] Add `SettingsManager.save()`. `_data` currently holds `SettingsNode` objects, so it can't be `json.dump`ed; keep the raw dict separately.
+- [x] ~~Add `SettingsManager.save()`~~ (done). The settings menu still needs to call it when an option changes.
 - [ ] Apply the settings that already exist in the JSON but are never read: `vsync`, `scale`, `audio.*`, `gameplay.*`, `debug.*` (e.g. an FPS counter, collision boxes).
 - [ ] Add `fps` to the JSON (the code already reads it, with a default of 60).
-- [ ] Commit a `usrSettings.default.json` and gitignore the user's own copy, so personal settings don't create merge conflicts.
+- [x] ~~Keep personal settings out of git~~ (done: `usrSettings.json` holds the defaults; `SettingsManager.save()` writes changes to the gitignored `usrSettings.local.json`).
 
 ### P4: Project hygiene
 - [ ] Expand the README. It has venv setup now; add how to run, controls, folder layout, and how to add a scene.

@@ -1,5 +1,4 @@
 from core.sceneManager import sceneHandler, sceneManager
-from core.settingsManager import SettingsMenu
 import pygame
 
 
