@@ -1,7 +1,5 @@
 from core.sceneManager import sceneManager
-from pathlib import Path
 import pygame
-from core.settingsManager import SettingsManager  # import helper
 
 
 def gameLoop(settings):
