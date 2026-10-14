@@ -1,6 +1,6 @@
-from core.sceneManager import sceneHandler, sceneManager
 from pathlib import Path
 import pygame
+from core.scene import Scene
 
 
 STEPS = 10  # Ticks per tile (controls movement speed)
@@ -30,7 +30,7 @@ class XYPair:
         return f"(x:{self.x:>5.2f}, y:{self.y:>5.2f})"
 
 
-class GameScene(sceneHandler):
+class GameScene(Scene):
     grid = [
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -68,9 +68,9 @@ class GameScene(sceneHandler):
     GRID_WIDTH = len(grid[0])   # 28
     GRID_HEIGHT = len(grid)     # 31
 
-    def __init__(self, screen, settings):
-        # FIX 1: __init__ must accept (screen, settings) to match sceneHandler signature
-        super().__init__(screen, settings)
+    def __init__(self, game):
+        # FIX 1: __init__ must accept the same arguments as the Scene base class
+        super().__init__(game)
 
         # FIX 2: Build tiles and image_grid inside __init__, not at class level.
         # Class-level pygame.image.load() runs at import time — before pygame.init() —
@@ -89,7 +89,7 @@ class GameScene(sceneHandler):
         self.coord = XYPair(1, 1)
 
         # Build key map from settings controls
-        ctrl = settings.controls.keyboard
+        ctrl = self.settings.controls.keyboard
         self.key_map = self._build_key_map(ctrl)
 
     # ------------------------------------------------------------------
@@ -143,13 +143,14 @@ class GameScene(sceneHandler):
             "down":  [pygame.key.key_code(ctrl.move_down)],
             "left":  [pygame.key.key_code(ctrl.move_left)],
             "right": [pygame.key.key_code(ctrl.move_right)],
+            "pause": [pygame.key.key_code(ctrl.pause), pygame.K_ESCAPE],
         }
 
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
 
-    def isValidMove(self, coord: XYPair) -> bool:
+    def is_valid_move(self, coord: XYPair) -> bool:
         gx = int(coord.x) % self.GRID_WIDTH
         gy = int(coord.y) % self.GRID_HEIGHT
         return self.grid[gy][gx] == 0
@@ -158,13 +159,19 @@ class GameScene(sceneHandler):
     # Scene interface
     # ------------------------------------------------------------------
 
-    def handleEvent(self, event):
-        # FIX 4: handleEvent receives a single event (from game.py's loop),
+    def _pause(self):
+        # Pushed on top, so this scene (and Pac-Man's position) stays alive underneath.
+        # Imported here because the scenes import each other in a circle.
+        from scenes.pause_scene import PauseScene  # pylint: disable=import-outside-toplevel
+        self.game.push(PauseScene(self.game))
+
+    def handle_event(self, event):
+        # FIX 4: handle_event receives a single event (from Game's loop),
         # not the full event list. Remove the inner "for event in events" loop.
         match event.type:
             case pygame.KEYDOWN:
-                if event.key == pygame.K_DELETE:
-                    self.changeScene("title")
+                if event.key in self.key_map["pause"]:
+                    self._pause()
             case pygame.JOYBUTTONDOWN:
                 print(f"Button {event.button} pressed on joystick {event.instance_id}")
             case pygame.JOYBUTTONUP:
@@ -176,9 +183,10 @@ class GameScene(sceneHandler):
                     elif event.axis == 1:
                         self.desired_dir = XYPair(0, round(event.value))
 
-    def gameUpdate(self, dt, pressed_keys):
+    def update(self, dt):
         # FIX 5: Move all game logic here (it was incorrectly placed inside
-        # handleEvent). pressed_keys is only available in gameUpdate.
+        # handle_event). Held keys are read here, once per frame.
+        pressed_keys = pygame.key.get_pressed()
 
         # --- Read keyboard input ---
         if any(pressed_keys[k] for k in self.key_map["up"]):
@@ -196,11 +204,11 @@ class GameScene(sceneHandler):
             return  # Only move Pac-Man once per STEPS ticks
 
         # --- Try to turn ---
-        if self.isValidMove(self.coord + self.desired_dir):
+        if self.is_valid_move(self.coord + self.desired_dir):
             self.curr_dir = self.desired_dir
 
         # --- Try to move forward ---
-        if self.isValidMove(self.coord + self.curr_dir):
+        if self.is_valid_move(self.coord + self.curr_dir):
             self.coord.x = (self.coord.x + self.curr_dir.x) % self.GRID_WIDTH
             self.coord.y = (self.coord.y + self.curr_dir.y) % self.GRID_HEIGHT
 
@@ -215,9 +223,9 @@ class GameScene(sceneHandler):
         elif self.curr_dir.y == 1:
             self.angle = 270
 
-    def sceneRender(self, screen):
+    def render(self, screen):
         screen.fill((10, 10, 10))
-        width, height = self.settings.video.resolution
+        width, height = screen.get_size()
         image_scale = min(width // self.GRID_WIDTH, height // self.GRID_HEIGHT)
         center_offset = (width - image_scale * self.GRID_WIDTH) // 2
 
@@ -251,7 +259,3 @@ class GameScene(sceneHandler):
             int(image_scale * (render_y + 0.5)),
         )
         screen.blit(pacman_surf, rect)
-
-
-# Register scene
-sceneManager.register_scene("RGame", GameScene)
