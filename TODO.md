@@ -7,7 +7,7 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
 ## What's working well
 
 - **Scene architecture.** `sceneHandler` gives every scene the same `handleEvent`, `gameUpdate`, `sceneRender` interface. `game.py` runs a clean *input → update → render → transition* loop, which is the standard game-loop shape.
-- **Auto-registered scenes.** `sceneManager.load_all_scenes()` imports everything in `scenes/`, so a new scene is one new file plus `register_scene(...)` at the bottom. That makes it easy for several people to work in parallel.
+- **Scene stack.** `core/game.py`'s `Game` keeps a stack of scenes: `push` opens one on top (pause, settings) without losing the one below, `pop` goes back, `replace`/`reset` switch. Only the top scene updates, which is how pausing works.
 - **Wall auto-tiling.** `_build_image_grid` computes a 4-bit neighbor mask (top/right/bottom/left) and uses it to pick the tile sprite. Real games do it the same way.
 - **Buffered turning.** Keeping `desired_dir` separate from `curr_dir` means you can press a direction early and Pac-Man turns at the next opening. That's how the arcade game feels.
 - **Tunnel wrap.** The `% GRID_WIDTH` in movement makes the side tunnel work with no special-case code.
@@ -52,19 +52,19 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
 - [ ] Switch over to GitHub Flow:
   - [ ] Open a PR from `test-stable` into `main` and merge it, so `main` has the latest work (pygame-ce, TODO, settings menu).
   - [ ] Check the old `dev` branch for work that never reached `main`. It has 14 commits from Nov 2025 that are in neither `main` nor `test-stable`. Rescue anything still needed, then delete `dev`.
-  - [ ] Delete `test-stable` once it's merged.
+  - [x] ~~Delete `test-stable` once it's merged~~ (done).
   - [ ] Turn on branch protection for `main` on GitHub: require a PR, one approving review, and passing CI.
   - [ ] Tag the first working version: `git tag v0.1 && git push origin v0.1`.
 - [x] ~~Choose **pygame** or **pygame-ce**~~ (done: pygame-ce).
 - [ ] Every member: recreate your venv and reinstall from `requirements.txt` (see README). Uninstall plain `pygame` first if you have it.
 - [ ] Settings menu:
-  - [ ] Create `self.font` in `__init__`, not in `sceneRender`.
-  - [ ] Act on the selection *inside* `handleEvent`; don't return it.
-  - [ ] Clamp `selected_option` to the options currently shown.
-  - [ ] Do mouse hit-testing only against the options shown.
-  - [ ] Handle ESC as a `KEYDOWN` event, not a held key.
-  - [ ] Remove `pygame.display.flip()` from `sceneRender`.
-  - [ ] Fix the `[14:15]` slice.
+  - [x] ~~Create `self.font` in `__init__`, not in `sceneRender`~~ (done).
+  - [x] ~~Act on the selection *inside* `handleEvent`; don't return it~~ (done).
+  - [x] ~~Clamp `selected_option` to the options currently shown~~ (done).
+  - [x] ~~Do mouse hit-testing only against the options shown~~ (done).
+  - [x] ~~Handle ESC as a `KEYDOWN` event, not a held key~~ (done).
+  - [x] ~~Remove `pygame.display.flip()` from `sceneRender`~~ (done).
+  - [x] ~~Fix the `[14:15]` slice~~ (done).
 - [ ] Replace the flat 23-item options list with a nested structure, e.g. `{"Graphics": ["Resolution", "Fullscreen", "Back"], ...}`. That removes all the magic slice numbers.
 - [x] ~~Delete `SettingsMenu` from `core/settingsManager.py`~~ (done). When volume is added to the settings scene, use `pygame.mixer.music.set_volume` plus `sound.set_volume` on each `Sound` object.
 - [ ] Stop the wall-sliding render: only interpolate when the next tile is walkable. Better: move by a fraction of a tile each frame (see P1).
@@ -73,7 +73,7 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
   - [ ] Never set the direction to `(0, 0)`.
   - [ ] Open joysticks on `JOYDEVICEADDED`.
 - [x] ~~Use `pygame.key.key_code(name)` for key bindings~~ (done, came in from `main`).
-- [ ] Wire up the unused `pause` key binding.
+- [x] ~~Wire up the unused `pause` key binding~~ (done).
 - [x] ~~Fix CI~~ (done): tests Python 3.10–3.14, installs `requirements.txt`, uses `checkout@v7` / `setup-python@v7`, and `.pylintrc` fixes the pygame false errors. Add new Python versions to the matrix as they come out.
 - [ ] Clean up pylint warnings (score 7.64/10: naming, docstrings, unused variables/imports), then raise `fail-under` in `.pylintrc` so the score can't drop.
 - [x] ~~`game.py`: remove the `settings=None` default~~ (done, came in from `main`).
@@ -92,30 +92,30 @@ Review of the `test-stable` branch, done 2026-09-28 and updated after `main` was
 - [ ] Ghosts: a base `Ghost` class plus Blinky, Pinky, Inky and Clyde targeting rules, with scatter, chase and frightened modes. The ghost house needs a door; it's currently fully walled in.
 - [ ] Collisions between Pac-Man and ghosts, lives (`gameplay.lives` is already in the JSON), death, and game over.
 - [ ] A HUD for score, high score, lives and level.
-- [ ] A pause menu using the `P` binding. Opening Settings mid-game currently throws away the whole game, because scene changes create new instances.
+- [x] ~~A pause menu using the `P` binding. Opening Settings mid-game currently throws away the whole game, because scene changes create new instances~~ (done).
 - [ ] Pac-Man mouth animation, and sounds.
 
 ### P2: Code quality / structure
 - [ ] Split `gameScene.py` into `entities/pacman.py`, `entities/ghost.py` and `world/maze.py`. Scenes should coordinate the pieces, not contain all the logic.
 - [ ] Replace `XYPair` with `pygame.Vector2`. It already does `+ - *`, and it also supports `==`, which `XYPair` doesn't.
-- [ ] Pick one naming style: PEP 8 means `snake_case` functions and `PascalCase` classes. Today `sceneHandler` is a lowercase class, methods mix camelCase and snake_case, and the game scene is registered as `"RGame"` instead of `"game"`.
-- [ ] Make base-class methods `pass`, or raise `NotImplementedError`. The current `print` would spam the console every frame.
-- [ ] `sceneHandler.endGame()` calls `pygame.quit()` in the middle of the loop, so the next frame would crash. Set a quit flag and let `game.py` exit instead.
+- [ ] Pick one naming style: PEP 8 means `snake_case` functions and `PascalCase` classes. Scenes are done (`Scene`, `handle_event` / `update` / `render`, snake_case file names); still left: the file name `core/settingsManager.py`.
+- [x] ~~Make base-class methods `pass`, or raise `NotImplementedError`. The current `print` would spam the console every frame~~ (done).
+- [x] ~~`sceneHandler.endGame()` calls `pygame.quit()` in the middle of the loop, so the next frame would crash. Set a quit flag and let `game.py` exit instead~~ (done).
 - [ ] Remove unused code:
-  - [ ] `current_scene` / `getCurrentScene` in `sceneHandler`
+  - [x] ~~`current_scene` / `getCurrentScene` in `sceneHandler`~~ (done).
   - [ ] `SubMenu.selector`
   - [ ] the unused `text` variable in the mouse loop
   - [ ] the unused `width, height` in `SubMenu.__init__`
   - [x] ~~duplicate assets (`assets/tile_*.png`, `tile_16.png`)~~ (done; `blue.png` is still loaded by the game scene, so it stays)
 - [ ] Rename the misspelled `temperary_options` to `temporary_options`.
 - [ ] `startScreen`:
-  - [ ] Create fonts and text once in `__init__`, not every frame.
-  - [ ] Remove the duplicate `start_rect` / `text_rect`.
-  - [ ] Stop calling `set_caption` every frame.
-  - [ ] Make Settings and Quit reachable by keyboard.
+  - [x] ~~Create fonts and text once in `__init__`, not every frame~~ (done).
+  - [x] ~~Remove the duplicate `start_rect` / `text_rect`~~ (done).
+  - [x] ~~Stop calling `set_caption` every frame~~ (done).
+  - [x] ~~Make Settings and Quit reachable by keyboard~~ (done).
 - [ ] Pre-scale tile images once when the resolution changes. Right now `transform.scale` runs about 870 times per frame (2.8 ms/frame measured; fine for now, but it adds up).
-- [ ] Scenes read `settings.video.resolution`; use `screen.get_size()` instead so layout stays right in fullscreen.
-- [ ] Use ESC instead of DELETE to leave the game scene.
+- [x] ~~Scenes read `settings.video.resolution`; use `screen.get_size()` instead so layout stays right in fullscreen~~ (done).
+- [x] ~~Use ESC instead of DELETE to leave the game scene~~ (done).
 
 ### P3: Settings persistence
 - [x] ~~Add `SettingsManager.save()`~~ (done). The settings menu still needs to call it when an option changes.

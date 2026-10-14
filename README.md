@@ -18,6 +18,45 @@ pip install -r requirements.txt
 python main.py
 ```
 
+Controls: arrow keys to move, **P** or **ESC** to pause, **Enter** to select in menus, **S** on the title screen for Settings.
+
+## How scenes work
+
+Every screen (title, game, pause, settings) is a `Scene` subclass in `scenes/`. `Game` (`core/game.py`) keeps a **stack** of scenes:
+
+- Only the **top** scene gets events and `update(dt)`. The scenes below are frozen, which is how pausing works.
+- Scenes are drawn from the bottom up when the top one has `is_overlay = True` (e.g. the pause menu over the maze).
+- A scene changes scenes by asking the game. Changes happen at the end of the frame:
+
+| Call | What it does | Example |
+|---|---|---|
+| `self.game.push(PauseScene(self.game))` | Open a scene on top; the current one stays alive | Pause, Settings |
+| `self.game.pop()` | Close this scene and go back | Resume, Back |
+| `self.game.replace(GameScene(self.game))` | Swap this scene for another | Title → Game |
+| `self.game.reset(TitleScene(self.game))` | Close everything and start over | Quit to Title |
+| `self.game.quit()` | End the game | Exit |
+
+### Adding a scene
+```python
+import pygame
+from core.scene import Scene
+
+class GameOverScene(Scene):
+    def __init__(self, game):
+        super().__init__(game)
+        self.font = pygame.font.Font(None, 80)   # build fonts/images once, here
+
+    def handle_event(self, event):
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+            from scenes.title_scene import TitleScene  # import inside: scenes import each other
+            self.game.reset(TitleScene(self.game))
+
+    def render(self, screen):
+        screen.fill((0, 0, 0))
+        screen.blit(self.font.render("GAME OVER", True, (255, 0, 0)), (200, 250))
+```
+Override only what you need (`on_enter`, `on_exit`, `on_pause`, `handle_event`, `update`, `render`). Never call `pygame.display.flip()` or `pygame.quit()` in a scene; `Game` does both.
+
 ## Contributing (GitHub Flow)
 
 `main` is the only long-lived branch, and it must always run. All work happens on short-lived branches:
