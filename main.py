@@ -1,6 +1,7 @@
 from pathlib import Path
 from core.settingsManager import SettingsManager
-from core.game import gameLoop
+from core.game import Game
+from scenes.title_scene import TitleScene
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -15,7 +16,8 @@ def main():
         data_dir / "usrSettings.json", data_dir / "usrSettings.local.json"
     )
 
-    gameLoop(settings)
+    game = Game(settings)
+    game.run(TitleScene(game))
 
 
 if __name__ == "__main__":
