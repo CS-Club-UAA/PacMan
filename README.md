@@ -13,6 +13,13 @@ pip install -r requirements.txt
 > You still write `import pygame` in code. The two packages conflict, so if you have plain pygame
 > installed, remove it first with `pip uninstall pygame`. A venv avoids this entirely.
 
+## Type-checking the game
+```sh
+python -m mypy .
+```
+This scans the full workspace to ensure everything is typed properly, avoiding many otherwise-hard-to-catch bugs.
+It's expected to do this and fix errors arising from it before committing.
+
 ## Running the game
 ```sh
 python main.py
@@ -22,40 +29,53 @@ Controls: arrow keys to move, **P** or **ESC** to pause, **Enter** to select in 
 
 ## How scenes work
 
-Every screen (title, game, pause, settings) is a `Scene` subclass in `scenes/`. `Game` (`core/game.py`) keeps a **stack** of scenes:
+Every screen (title, game, settings) is a file in `scenes/`. Each scene must be registered in main.py and impliment the following functions:
 
-- Only the **top** scene gets events and `update(dt)`. The scenes below are frozen, which is how pausing works.
-- Scenes are drawn from the bottom up when the top one has `is_overlay = True` (e.g. the pause menu over the maze).
-- A scene changes scenes by asking the game. Changes happen at the end of the frame:
+`init() -> None`
+* Called whenever the scene is switched to
 
-| Call | What it does | Example |
-|---|---|---|
-| `self.game.push(PauseScene(self.game))` | Open a scene on top; the current one stays alive | Pause, Settings |
-| `self.game.pop()` | Close this scene and go back | Resume, Back |
-| `self.game.replace(GameScene(self.game))` | Swap this scene for another | Title → Game |
-| `self.game.reset(TitleScene(self.game))` | Close everything and start over | Quit to Title |
-| `self.game.quit()` | End the game | Exit |
+`deinit() -> None`
+* Called immediately before the scene is switched away from
 
-### Adding a scene
+`event(pygame.Event) -> list[Message]`
+* Called whenever there is a a pygame event
+* Returns a list of Messages (can be empty), commands to be executed by the game manager. The commands are detailed below.
+
+`update() -> list[Message]`
+* Core game update logic goes in here
+* Called only when the game is **unpaused**
+* Returns a list of Messages (can be empty), commands to be executed by the game manager. The commands are detailed below.
+
+`draw(screen: Surface) -> None`
+* Modifies the screen by drawing the current scene to it
+* Is NOT permitted to modify any scene variables. Any scene variable modification should be done in another function such as `input` or `update`
+
+### Boilerplate
+Copy-pastable code for creating new scenes
 ```python
+from core.message import Message
 import pygame
-from core.scene import Scene
 
-class GameOverScene(Scene):
-    def __init__(self, game):
-        super().__init__(game)
-        self.font = pygame.font.Font(None, 80)   # build fonts/images once, here
+def init() -> None:
+	pass
 
-    def handle_event(self, event):
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-            from scenes.title_scene import TitleScene  # import inside: scenes import each other
-            self.game.reset(TitleScene(self.game))
+def deinit() -> None:
+	pass
 
-    def render(self, screen):
-        screen.fill((0, 0, 0))
-        screen.blit(self.font.render("GAME OVER", True, (255, 0, 0)), (200, 250))
+def event(e: pygame.Event) -> list[Message]:
+	return []
+
+def update() -> list[Message]:
+	return []
+
+def draw(screen: pygame.Surface) -> None:
+	pass
 ```
-Override only what you need (`on_enter`, `on_exit`, `on_pause`, `handle_event`, `update`, `render`). Never call `pygame.display.flip()` or `pygame.quit()` in a scene; `Game` does both.
+
+### Commands
+* `ChangeScene(new_scene: Scene)`. Accepts a scene name, switches to that scene on the next frame
+* `Pause`. Pauses the game and opens the pause menu
+* `Quit(message: str, failure: bool)`. Accepts a message, tagged with if it's a successful or not exit, quits on the next frame
 
 ## Contributing (GitHub Flow)
 
